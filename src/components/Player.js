@@ -1,11 +1,16 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { retrievePlaylist } from '../store/actions/index';
 
 function mapStateToProps(state) {
     return {
         playlist: state.Playlist
     };
 }
+
+const mapDispatchToProps = dispatch => ({
+    fetchPlaylist: () => dispatch(retrievePlaylist())
+});
 
 class Player extends React.Component {
     constructor(props) {
@@ -15,19 +20,24 @@ class Player extends React.Component {
             done: false,
             YT: null,
             reframed: false,
-            videoId: '1cH2cerUpMQ'
+            videoId: ''
         }
 
         this.init();
-        window['onYouTubeIframeAPIReady'] = () => {
+        window['onYouTubeIframeAPIReady'] = async () => {
+            let firstUrl = await this.getFirstVideoUrl();
+            this.loadVideo = this.loadVideo.bind(this);
+
             this.state.YT = window['YT'];
             this.state.reframed = false;
             this.state.player = new this.state.YT.Player('player', {
-                videoId: this.state.videoId,
+                videoId: firstUrl,
                 events: {
                     'onStateChange': this.onPlayerStateChange.bind(this),
-                    'onError': this.onPlayerError.bind(this),
-                    'onReady': (e) => {
+                    'onError': err => console.error('Player error:', err),
+                    'onReady': e => {
+                        this.setState({ videoId: firstUrl });
+                        this.loadVideo();
                         e.target.playVideo();
                     }
                 }
@@ -42,24 +52,20 @@ class Player extends React.Component {
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
     }
 
-    onPlayerReady(event) {
-        event.target.playVideo();
-    }
-
     onPlayerStateChange(event) {
         switch (event.data) {
             case this.state.YT.PlayerState.PLAYING:
-                if (this.cleanTime() === 0) {
-                    console.log('started ' + this.cleanTime());
+                if (this.getPassedTime() === 0) {
+                    console.log('started ' + this.getPassedTime());
                 }
                 else {
-                    console.log('playing ' + this.cleanTime())
+                    console.log('playing ' + this.getPassedTime())
                 };
                 break;
 
             case this.state.YT.PlayerState.PAUSED:
                 if (this.state.player.getDuration() - this.state.player.getCurrentTime() !== 0) {
-                    console.log('paused @' + this.cleanTime());
+                    console.log('paused @' + this.getPassedTime());
                 };
                 break;
 
@@ -71,21 +77,36 @@ class Player extends React.Component {
         };
     };
 
-    cleanTime() {
+    /**
+     * @returns {Number} The time that has passed since the beginning of the video.
+     */
+    getPassedTime() {
         return Math.round(this.state.player.getCurrentTime())
     };
 
-    onPlayerError(err) {
-        console.error('Player error', err);
-    }
-
+    /**
+     * Stop the video player.
+     */
     stopVideo() {
         this.state.player.stopVideo();
     }
 
-    loadVideo(url) {
+    /**
+     * @returns {String} The URL of the first video in the playlist.
+     */
+    async getFirstVideoUrl() {
+        await this.props.fetchPlaylist();
+
+        if (!this.props.playlist || !this.props.playlist.length) return '';
+        else return this.props.playlist[0].url;
+    }
+
+    /**
+     * Load the first video in the playlist.
+     */
+    loadVideo() {
         this.state.player.loadVideoById({
-            'videoId': url,
+            'videoId': this.state.videoId,
             'startSeconds': 0
         });
     }
@@ -98,4 +119,4 @@ class Player extends React.Component {
     }
 }
 
-export default connect(mapStateToProps)(Player);
+export default connect(mapStateToProps, mapDispatchToProps)(Player);

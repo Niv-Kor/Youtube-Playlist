@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import {DragDropContext, Droppable, Draggable} from 'react-beautiful-dnd';
 import VideoTile from './VideoTile';
-import { addVideo } from '../Socket';
 
 class Playlist extends Component {
     constructor() {
@@ -26,8 +25,6 @@ class Playlist extends Component {
      *                  ]
      */
     getItems() {
-        setTimeout(() => addVideo('fdfd video 2'), 2000);
-
         return [
             {
                 title: 'video 0',

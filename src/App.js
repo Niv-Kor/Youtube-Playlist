@@ -1,9 +1,27 @@
 import './App.css';
-import React, {Component} from 'react';
+import React from 'react';
+import { connect } from 'react-redux';
+import { retrievePlaylist } from './store/actions/index';
 import PlaylistSection from './components/PlaylistSection.js';
 import PlayerSection from './components/PlayerSection.js';
 
-class App extends Component {
+const mapDispatchToProps = dispatch => ({
+  fetchPlaylist: () => dispatch(retrievePlaylist())
+});
+
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.loadPlaylist();
+  }
+
+  /**
+   * Load the videos playlist.
+   */
+  async loadPlaylist() {
+    await this.props.fetchPlaylist();
+  }
+
   render() {
     return (
       <div className="App">
@@ -14,4 +32,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default connect(null, mapDispatchToProps)(App);

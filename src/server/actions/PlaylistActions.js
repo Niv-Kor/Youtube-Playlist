@@ -13,7 +13,7 @@ module.exports = {
  */
 function getPlaylist() {
     return new Promise(resolve => {
-        GENERAL_ACTIONS.runProcedure('GetPlaylist', params)
+        GENERAL_ACTIONS.runProcedure('GetPlaylist')
         .then(res => resolve(res))
         .catch(err => {
             LOGGER.error('Could not retrieve the playlist', err);

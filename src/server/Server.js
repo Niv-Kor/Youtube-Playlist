@@ -26,8 +26,12 @@ CONSTANTS.FRONT_IO.on('connection', async socket => {
 
     //handle client's requests to the server
     personalIO.on('connection', socket => {
+        socket.on('get-playlist', async () => {
+            let list = await ACTIONS.playlist.getPlaylist();
+            socket.emit('get-playlist', list);
+        });
+
         socket.on('add-video', async data => {
-            LOGGER.log('server side with ' + data.url);
             let res = await ACTIONS.playlist.addVideo(data.url, '434', 23);
             socket.emit('add-video', res);
         });

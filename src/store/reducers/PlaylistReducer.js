@@ -1,9 +1,7 @@
-import { retrievePlaylist } from '../../Socket';
-
-const playlistReducer = async (state = [], action) => {
+const playlistReducer = (state = [], action) => {
     switch (action.type) {
-        case 'RETRIEVE_PLAYLIST':
-            return await retrievePlaylist();
+        case 'RETRIEVE_PLAYLIST_FULFILLED':
+            return action.payload
 
         default: return state;
     }

@@ -22,18 +22,20 @@ function addVideo(url) {
     console.log('client side');
 }
 
-function retrievePlaylist() {
-    return new Promise(resolve => {
+function fetchPlaylist() {
+    return new Promise((resolve, reject) => {
         socket.emit('get-playlist');
         socket.once('get-playlist', list => {
             console.log('got playlist', list);
-            resolve(list)
+            resolve(list);
         });
-    });
+
+        setTimeout(reject, 5000);
+    })
 }
 
 export {
     connect,
     addVideo,
-    retrievePlaylist
+    fetchPlaylist
 };

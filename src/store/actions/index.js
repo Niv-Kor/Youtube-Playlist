@@ -1,3 +1,5 @@
+import { fetchPlaylist } from '../../Socket';
+
 const addVideo = data => {
     return {
         type: 'ADD_VIDEO',
@@ -5,10 +7,10 @@ const addVideo = data => {
     }
 }
 
-const retrievePlaylist = data => {
+const retrievePlaylist = () => {
     return {
         type: 'RETRIEVE_PLAYLIST',
-        data
+        payload: fetchPlaylist
     }
 }
 
