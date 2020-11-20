@@ -1,10 +1,9 @@
 const HTTP = require('http');
 const FRONT_SERVER = HTTP.createServer();
 const SOCKET = require('socket.io');
-const FRONT_IO = SOCKET.listen(FRONT_SERVER);
+const FRONT_IO = SOCKET(FRONT_SERVER);
 const SERVER_PORT = 19301;
 const PORT_HANDLER = require('get-port');
-const { performance } = require('perf_hooks');
 
 //Microsoft SQL Server
 const SQL = require('mssql');
@@ -28,6 +27,5 @@ module.exports = {
     FRONT_IO,
     PORT_HANDLER,
     SERVER_PORT,
-    DB_CONFIG,
-    performance
+    DB_CONFIG
 }
