@@ -1,6 +1,7 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import {DragDropContext, Droppable, Draggable} from 'react-beautiful-dnd';
-import VideoTile from './VideoTile.js';
+import VideoTile from './VideoTile';
+import { addVideo } from '../Socket';
 
 class Playlist extends Component {
     constructor() {
@@ -25,6 +26,8 @@ class Playlist extends Component {
      *                  ]
      */
     getItems() {
+        setTimeout(() => addVideo('fdfd video 2'), 2000);
+
         return [
             {
                 title: 'video 0',
@@ -81,15 +84,15 @@ class Playlist extends Component {
      */
     getItemStyle(isDragged, draggableStyle) {
         if (isDragged) return {
-            userSelect: "none",
-            'background-color': "#ff133e",
-            transition: "background-color .2s linear !important",
+            userSelect: 'none',
+            backgroundColor: '#ff133e',
+            transition: 'background-color .2s linear !important',
             ...draggableStyle
         }
         else return {
-            userSelect: "none",
-            'background-color': "#f0f0f0",
-            transition: "background-color .2s linear !important",
+            userSelect: 'none',
+            backgroundColor: '#f0f0f0',
+            transition: 'background-color .2s linear !important',
             ...draggableStyle
         }
     };

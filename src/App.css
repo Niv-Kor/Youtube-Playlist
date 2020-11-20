@@ -77,3 +77,8 @@
   background-color: red;
   font-size: 76px;
 }
+
+#player {
+  width: 100%;
+  height: 100%;
+}

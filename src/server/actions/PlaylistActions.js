@@ -3,9 +3,24 @@ const LOGGER = require('../Logger');
 const GENERAL_ACTIONS = require('./GeneralActions');
 
 module.exports = {
+    getPlaylist,
     addVideo,
     removeVideo
 };
+
+/**
+ * Get the entire playlist from the DB.
+ */
+function getPlaylist() {
+    return new Promise(resolve => {
+        GENERAL_ACTIONS.runProcedure('GetPlaylist', params)
+        .then(res => resolve(res))
+        .catch(err => {
+            LOGGER.error('Could not retrieve the playlist', err);
+            resolve(null);
+        });
+    });
+}
 
 /**
  * Convert an amount of seconds to a duration string (mm:ss).
@@ -15,7 +30,7 @@ module.exports = {
  */
 function secondsToString(seconds) {
     let mins = parseInt(seconds / 60);
-    let secs = seconds - mines * 60;
+    let secs = seconds - mins * 60;
     return `${mins}:${secs}`;
 }
 
@@ -28,11 +43,10 @@ function secondsToString(seconds) {
  * @returns {Boolean} True if the video has been deleted successfully.
  */
 function addVideo(url, title, duration) {
-    let durationStr = secondsToString(duration);
     let params = [
-        { name: 'src', type: CONSTANTS.SQL.Int, value: url, options: {} },
-        { name: 'title', type: CONSTANTS.SQL.Int, value: title, options: {} },
-        { name: 'duration', type: CONSTANTS.SQL.Int, value: durationStr, options: {} },
+        { name: 'src', type: CONSTANTS.SQL.VarChar(512), value: url, options: {} },
+        { name: 'title', type: CONSTANTS.SQL.VarChar(128), value: title, options: {} },
+        { name: 'duration', type: CONSTANTS.SQL.Int, value: duration, options: {} },
     ];
 
     return new Promise(resolve => {
@@ -54,7 +68,7 @@ function addVideo(url, title, duration) {
  */
 function removeVideo(url, title) {
     let params = [
-        { name: 'src', type: CONSTANTS.SQL.Int, value: url, options: {} }
+        { name: 'src', type: CONSTANTS.SQL.VarChar(512), value: url, options: {} }
     ];
 
     return new Promise(resolve => {

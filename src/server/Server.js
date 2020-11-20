@@ -5,13 +5,15 @@ const ACTIONS = {
     playlist: require('./actions/PlaylistActions')
 }
 
+CONSTANTS.FRONT_IO.setMaxListeners(0);
+
 //handle client's connection
 CONSTANTS.FRONT_IO.on('connection', async socket => {
     //assign a socket for a client
     let port = await CONSTANTS.PORT_HANDLER();
     let personalServer = CONSTANTS.HTTP.createServer();
-    let personalIO = CONSTANTS.SOCKET.listen(personalServer);
-    personalServer.listen(port, function(err) {
+    let personalIO = CONSTANTS.FRONT_IO.listen(personalServer);
+    personalServer.listen(port, err => {
         if (err) LOGGER.error(`port ${port} could not be connected`, err);
         else {
             let origin = socket.handshake.headers.origin;
@@ -24,15 +26,20 @@ CONSTANTS.FRONT_IO.on('connection', async socket => {
 
     //handle client's requests to the server
     personalIO.on('connection', socket => {
-        socket.on('add_video', async data => {
-            let res = await ACTIONS.playlist.addVideo(data);
-            socket.emit('add_video', res);
+        socket.on('add-video', async data => {
+            LOGGER.log('server side with ' + data.url);
+            let res = await ACTIONS.playlist.addVideo(data.url, '434', 23);
+            socket.emit('add-video', res);
         });
 
-        socket.on('remove_video', async data => {
+        socket.on('remove-video', async data => {
             let res = await ACTIONS.playlist.removeVideo(data);
-            socket.emit('remove_video', res);
+            socket.emit('remove-video', res);
         });
+
+        personalServer.removeListener('exit', () => {
+            LOGGER.log('removed');
+        })
     });
 });
 
