@@ -10,10 +10,7 @@ const connectServerAction = () => {
 const addVideoAction = data => {
     return {
         type: 'ADD_VIDEO',
-        payload: () => {
-            addVideo(data);
-            retrievePlaylist();
-        }
+        payload: async () => addVideo(data)
     }
 }
 

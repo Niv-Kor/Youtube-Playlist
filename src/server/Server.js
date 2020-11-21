@@ -32,7 +32,7 @@ CONSTANTS.FRONT_IO.on('connection', async socket => {
         });
 
         socket.on('add-video', async data => {
-            let res = await ACTIONS.playlist.addVideo(data.url, '434', 23);
+            let res = await ACTIONS.playlist.addVideo(data.url);
             socket.emit('add-video', res);
         });
 

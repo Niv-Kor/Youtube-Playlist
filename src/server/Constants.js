@@ -4,6 +4,7 @@ const SOCKET = require('socket.io');
 const FRONT_IO = SOCKET(FRONT_SERVER);
 const SERVER_PORT = 19301;
 const PORT_HANDLER = require('get-port');
+const AXIOS = require('axios');
 
 //Microsoft SQL Server
 const SQL = require('mssql');
@@ -26,6 +27,7 @@ module.exports = {
     SOCKET,
     FRONT_IO,
     PORT_HANDLER,
+    AXIOS,
     SERVER_PORT,
     DB_CONFIG
 }

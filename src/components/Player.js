@@ -2,14 +2,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { listReloadedAction } from '../store/actions/index';
 
-const reloadInterval = 100;
-
-function mapStateToProps(state) {
-    return {
-        playlist: state.Playlist
-    };
-}
-
 const mapDispatchToProps = dispatch => ({
     listReloaded: url => dispatch(listReloadedAction(url))
 });
@@ -21,8 +13,9 @@ class Player extends React.Component {
             player: null,
             done: false,
             YT: null,
-            reframed: false,
-            videoId: ''
+            videoId: '',
+            loaded: false,
+            firstLoad: true
         }
 
         this.init();
@@ -31,7 +24,6 @@ class Player extends React.Component {
             this.loadVideo = this.loadVideo.bind(this);
 
             this.state.YT = window['YT'];
-            this.state.reframed = false;
             this.state.player = new this.state.YT.Player('player', {
                 videoId: firstUrl,
                 events: {
@@ -41,21 +33,11 @@ class Player extends React.Component {
                         this.setState({ videoId: firstUrl });
                         this.loadVideo();
                         e.target.playVideo();
+                        this.setState({ loaded: true });
                     }
                 }
             });
         }
-
-        //reload first video
-        setInterval(() => {
-            let playlist = this.props.playlist.playlist;
-            let reload = this.props.playlist.reload;
-            
-            if (reload && playlist && playlist.length) {
-                this.setState({ videoId: this.getFirstVideoUrl });
-                this.props.listReloaded();
-            }
-        }, reloadInterval)
     }
 
     init() {
@@ -63,6 +45,14 @@ class Player extends React.Component {
         tag.src = 'http://www.youtube.com/iframe_api';
         var firstScriptTag = document.getElementsByTagName('script')[0];
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    }
+
+    componentDidUpdate(prevProps) {
+        if (this.state.loaded && (prevProps.playlist !== this.props.playlist || this.state.firstLoad)) {
+            this.setState({ videoId: this.getFirstVideoUrl() });
+            this.setState({ firstLoad: false });
+            this.loadVideo();
+        }
     }
 
     onPlayerStateChange(event) {
@@ -108,27 +98,28 @@ class Player extends React.Component {
      * @returns {String} The URL of the first video in the playlist.
      */
     getFirstVideoUrl() {
-        let playlist = this.props.playlist.playlist;
+        let playlist = this.props.playlist;
         if (!playlist || !playlist.length) return '';
-        else return playlist[0].url;
+        else return playlist[0] ? playlist[0].url : '';
     }
 
     /**
      * Load the first video in the playlist.
      */
     loadVideo() {
+        if (!this.state.loaded || !this.props.playlist || !this.props.playlist.length) return;
+
         this.state.player.loadVideoById({
-            'videoId': this.state.videoId,
+            'videoId': this.props.playlist[0].url,
             'startSeconds': 0
         });
     }
 
     render() {
         return (
-            <div id="player">
-            </div>
+            <div id="player"></div>
         )
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Player);
+export default connect(null, mapDispatchToProps)(Player);

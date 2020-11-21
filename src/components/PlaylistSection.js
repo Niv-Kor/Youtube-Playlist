@@ -1,12 +1,12 @@
 import React, {Component} from 'react';
 import Playlist from './Playlist.js';
 import { connect } from 'react-redux';
-import { addVideoAction, retrievePlaylistAction } from '../store/actions/index';
+import { addVideoAction } from '../store/actions/index';
 
 const mapDispatchToProps = dispatch => ({
     addVideo: url => {
         dispatch(addVideoAction(url));
-        dispatch(retrievePlaylistAction());
+        //dispatch(retrievePlaylistAction());
     }
 });
 
@@ -56,7 +56,7 @@ class PlaylistSection extends Component {
                 >
                     Add
                 </button>
-                <Playlist />
+                <Playlist playlist={this.props.playlist} />
             </div>
         )
     } 

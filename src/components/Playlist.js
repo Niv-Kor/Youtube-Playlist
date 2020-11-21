@@ -4,14 +4,6 @@ import VideoTile from './VideoTile';
 import { listReloadedAction } from '../store/actions/index';
 import { connect } from 'react-redux';
 
-const reloadInterval = 100;
-
-function mapStateToProps(state) {
-    return {
-        playlist: state.Playlist
-    };
-}
-
 const mapDispatchToProps = dispatch => ({
     listReloaded: url => dispatch(listReloadedAction(url))
 });
@@ -20,24 +12,17 @@ class Playlist extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            items: this.props.playlist.playlist,
+            items: this.props.playlist,
             loaded: false
         }
 
         this.handleDragEnd = this.handleDragEnd.bind(this);
-
-        //reload playlist
-        setInterval(() => {
-            let playlist = this.props.playlist.playlist;
-            let reload = this.props.playlist.reload;
-            
-            if ((!this.state.loaded || reload) && playlist && playlist.length) {
-                this.setState({ items: this.props.playlist.playlist });
-                this.setState({ loaded: true });
-                this.props.listReloaded();
-            }
-        }, reloadInterval)
     };
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.playlist !== this.props.playlist)
+            this.setState({ items: this.props.playlist });
+    }
 
     /**
      * @param {Boolean} isDragged - True of the item is currently being dragged
@@ -83,6 +68,8 @@ class Playlist extends Component {
      * @returns {Array<JSX>} An array of draggable list items.
      */
     CreateVideoTiles(data) {
+        if (!data) return;
+
         return data.map((item, index) => (
             <Draggable
                 key={`key ${index}`}
@@ -163,4 +150,4 @@ class Playlist extends Component {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Playlist);
+export default connect(null, mapDispatchToProps)(Playlist);

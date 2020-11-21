@@ -67,8 +67,9 @@
 .video-title {
   position: absolute;
   left: 10px;
-  top: 15px;
-  font-size: 20px;
+  top: 10px;
+  width: 60%;
+  font-size: 13px;
 }
 
 .video-duration {

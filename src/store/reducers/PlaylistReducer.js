@@ -5,10 +5,16 @@ const playlist = (state = { playlist: [], reload: false }, action) => {
                 playlist: action.payload,
                 reload: true
             }
+        
+        case 'ADD_VIDEO_FULFILLED':
+            return {
+                playlist: action.payload,
+                reload: true
+            }
 
         case 'LIST_RELOADED':
             return {
-                playlist: state.playlist,
+                ...state.playlist,
                 reload: false
             }
         

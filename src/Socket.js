@@ -34,7 +34,10 @@ function addVideo(url) {
     return new Promise((resolve, reject) => {
         try {
             socket.emit('add-video', { url });
-            socket.once('add-video', () => resolve);
+            socket.once('add-video', async () => {
+                let newList = await retrievePlaylist();
+                resolve(newList)
+            });
             setTimeout(reject, defaultTimeout);
         }
         catch (ex) { reject(); }

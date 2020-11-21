@@ -1,14 +1,12 @@
-import React, {Component} from 'react';
+import React from 'react';
 import Player from './Player';
 
-class PlayerSection extends Component {
-    render() {
-        return (
-            <div className="player-div">
-                <Player />
-            </div>
-        )
-    }
+function PlayerSection(props) {
+    return (
+        <div className="player-div">
+            <Player playlist={props.playlist} />
+        </div>
+    )
 }
 
 export default PlayerSection;
