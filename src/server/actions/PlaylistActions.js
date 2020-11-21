@@ -52,10 +52,7 @@ function addVideo(url, title, duration) {
     return new Promise(resolve => {
         GENERAL_ACTIONS.runProcedure('AddVideo', params)
         .then(res => resolve(!!res))
-        .catch(err => {
-            LOGGER.error(`Could not add video #${title}`, err);
-            resolve(false);
-        });
+        .catch(() => resolve(false));
     });
 }
 
@@ -74,9 +71,6 @@ function removeVideo(url, title) {
     return new Promise(resolve => {
         GENERAL_ACTIONS.runProcedure('RemoveVideo', params)
         .then(res => resolve(!!res))
-        .catch(err => {
-            LOGGER.error(`Could not remove video #${title}`, err);
-            resolve(false);
-        });
+        .catch(err => resolve(false));
     });
 }

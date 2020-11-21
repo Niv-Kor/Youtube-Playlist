@@ -1,6 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { retrievePlaylistAction } from '../store/actions/index';
+import { listReloadedAction } from '../store/actions/index';
+
+const reloadInterval = 100;
 
 function mapStateToProps(state) {
     return {
@@ -9,7 +11,7 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = dispatch => ({
-    fetchPlaylist: () => dispatch(retrievePlaylistAction())
+    listReloaded: url => dispatch(listReloadedAction(url))
 });
 
 class Player extends React.Component {
@@ -25,7 +27,7 @@ class Player extends React.Component {
 
         this.init();
         window['onYouTubeIframeAPIReady'] = async () => {
-            let firstUrl = await this.getFirstVideoUrl();
+            let firstUrl = this.getFirstVideoUrl();
             this.loadVideo = this.loadVideo.bind(this);
 
             this.state.YT = window['YT'];
@@ -43,6 +45,17 @@ class Player extends React.Component {
                 }
             });
         }
+
+        //reload first video
+        setInterval(() => {
+            let playlist = this.props.playlist.playlist;
+            let reload = this.props.playlist.reload;
+            
+            if (reload && playlist && playlist.length) {
+                this.setState({ videoId: this.getFirstVideoUrl });
+                this.props.listReloaded();
+            }
+        }, reloadInterval)
     }
 
     init() {
@@ -94,9 +107,7 @@ class Player extends React.Component {
     /**
      * @returns {String} The URL of the first video in the playlist.
      */
-    async getFirstVideoUrl() {
-        await this.props.fetchPlaylist();
-
+    getFirstVideoUrl() {
         let playlist = this.props.playlist.playlist;
         if (!playlist || !playlist.length) return '';
         else return playlist[0].url;

@@ -32,17 +32,23 @@ function connectServer() {
 
 function addVideo(url) {
     return new Promise((resolve, reject) => {
-        socket.emit('add-video', { url });
-        socket.once('add-video', () => resolve);
-        setTimeout(reject, defaultTimeout);
+        try {
+            socket.emit('add-video', { url });
+            socket.once('add-video', () => resolve);
+            setTimeout(reject, defaultTimeout);
+        }
+        catch (ex) { reject(); }
     });
 }
 
 function retrievePlaylist() {
     return new Promise((resolve, reject) => {
-        socket.emit('get-playlist');
-        socket.once('get-playlist', list => resolve(list));
-        setTimeout(reject, defaultTimeout);
+        try {
+            socket.emit('get-playlist');
+            socket.once('get-playlist', list => resolve(list));
+            setTimeout(reject, defaultTimeout);
+        }
+        catch (ex) { reject(ex); }
     });
 }
 
