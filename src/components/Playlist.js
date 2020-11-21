@@ -1,78 +1,43 @@
 import React, { Component } from 'react';
-import {DragDropContext, Droppable, Draggable} from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import VideoTile from './VideoTile';
+import { listReloadedAction } from '../store/actions/index';
+import { connect } from 'react-redux';
+
+const reloadInterval = 100;
+
+function mapStateToProps(state) {
+    return {
+        playlist: state.Playlist
+    };
+}
+
+const mapDispatchToProps = dispatch => ({
+    listReloaded: url => dispatch(listReloadedAction(url))
+});
 
 class Playlist extends Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
-            items: this.getItems()
+            items: this.props.playlist.playlist,
+            loaded: false
         }
 
         this.handleDragEnd = this.handleDragEnd.bind(this);
-    }
 
-    /**
-     * Get the playlist's raw videos data from the server.
-     * 
-     * @returns {Array} [
-     *                     {
-     *                        {String} title - The video's title,
-     *                        {String} duration - The video's duration,
-     *                        {String} src - Youtube URL
-     *                     },
-     *                     ...
-     *                  ]
-     */
-    getItems() {
-        return [
-            {
-                title: 'video 0',
-                duration: '3:15',
-                src: ""
-            },
-            {
-                title: 'video 1',
-                duration: '1:51',
-                src: ""
-            },
-            {
-                title: 'video 2',
-                duration: '2:35',
-                src: ""
-            },
-            {
-                title: 'video 3',
-                duration: '5:11',
-                src: ""
-            },
-            {
-                title: 'video 4',
-                duration: '2:09',
-                src: ""
-            },
-            {
-                title: 'video 5',
-                duration: '6:43',
-                src: ""
-            },
-            {
-                title: 'video 6',
-                duration: '4:23',
-                src: ""
-            },
-            {
-                title: 'video 7',
-                duration: '1:12',
-                src: ""
-            },
-            {
-                title: 'video 8',
-                duration: '0:40',
-                src: ""
+        //reload playlist
+        setInterval(() => {
+            let playlist = this.props.playlist.playlist;
+            let reload = this.props.playlist.reload;
+            
+            if ((!this.state.loaded || reload) && playlist && playlist.length) {
+                this.setState({ items: this.props.playlist.playlist });
+                this.setState({ loaded: true });
+                this.props.listReloaded();
             }
-        ];
-    }
+        }, reloadInterval)
+    };
 
     /**
      * @param {Boolean} isDragged - True of the item is currently being dragged
@@ -125,7 +90,7 @@ class Playlist extends Component {
                 index={index}
             >
                 {(provided, snapshot) => (
-                    <li
+                    <li id={(index === 0) ? 'first-video' : ''}
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
@@ -198,4 +163,4 @@ class Playlist extends Component {
     }
 }
 
-export default Playlist;
+export default connect(mapStateToProps, mapDispatchToProps)(Playlist);

@@ -1,41 +1,53 @@
 import io from 'socket.io-client';
 
 const serverDomain = 'http://localhost';
-const serverPort = 19301;
-var socket;
+const endpoint = 19301;
+const defaultTimeout = 5000;
+var establishSocket, socket;
 
-function connect() {
-    socket = io(`${serverDomain}:${serverPort}`, {
-        transports: ['websocket'],
-    });
-
-    socket.once('connection', port => {
-        console.log('connected ' + port);
-        socket = io(`${serverDomain}:${port}`, {
+function connectServer() {
+    return new Promise((resolve, reject) => {
+        establishSocket = io(`${serverDomain}:${endpoint}`, {
             transports: ['websocket'],
         });
-    });
-}
+    
+        establishSocket.once('connection', async port => {
+            console.log('connected ' + port);
+            establishSocket.removeAllListeners();
+            establishSocket.disconnect();
+            socket = io(`${serverDomain}:${port}`, {
+                transports: ['websocket'],
+            });
 
-function addVideo(url) {
-    socket.emit('add-video', { url });
-    console.log('client side');
-}
-
-function fetchPlaylist() {
-    return new Promise((resolve, reject) => {
-        socket.emit('get-playlist');
-        socket.once('get-playlist', list => {
-            console.log('got playlist', list);
-            resolve(list);
+            resolve();
+        });
+    
+        establishSocket.on('disconnect', () => {
+            establishSocket.removeAllListeners();
         });
 
-        setTimeout(reject, 5000);
+        setTimeout(reject, defaultTimeout);
     })
 }
 
+function addVideo(url) {
+    return new Promise((resolve, reject) => {
+        socket.emit('add-video', { url });
+        socket.once('add-video', () => resolve);
+        setTimeout(reject, defaultTimeout);
+    });
+}
+
+function retrievePlaylist() {
+    return new Promise((resolve, reject) => {
+        socket.emit('get-playlist');
+        socket.once('get-playlist', list => resolve(list));
+        setTimeout(reject, defaultTimeout);
+    });
+}
+
 export {
-    connect,
+    connectServer,
     addVideo,
-    fetchPlaylist
+    retrievePlaylist
 };

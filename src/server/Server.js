@@ -32,6 +32,7 @@ CONSTANTS.FRONT_IO.on('connection', async socket => {
         });
 
         socket.on('add-video', async data => {
+            LOGGER.log('data.url: ', data.url);
             let res = await ACTIONS.playlist.addVideo(data.url, '434', 23);
             socket.emit('add-video', res);
         });

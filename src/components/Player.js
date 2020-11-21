@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { retrievePlaylist } from '../store/actions/index';
+import { retrievePlaylistAction } from '../store/actions/index';
 
 function mapStateToProps(state) {
     return {
@@ -9,7 +9,7 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = dispatch => ({
-    fetchPlaylist: () => dispatch(retrievePlaylist())
+    fetchPlaylist: () => dispatch(retrievePlaylistAction())
 });
 
 class Player extends React.Component {
@@ -97,8 +97,9 @@ class Player extends React.Component {
     async getFirstVideoUrl() {
         await this.props.fetchPlaylist();
 
-        if (!this.props.playlist || !this.props.playlist.length) return '';
-        else return this.props.playlist[0].url;
+        let playlist = this.props.playlist.playlist;
+        if (!playlist || !playlist.length) return '';
+        else return playlist[0].url;
     }
 
     /**

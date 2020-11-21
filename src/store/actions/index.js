@@ -1,20 +1,38 @@
-import { fetchPlaylist } from '../../Socket';
+import { connectServer, retrievePlaylist, addVideo } from '../../Socket';
 
-const addVideo = data => {
+const connectServerAction = () => {
     return {
-        type: 'ADD_VIDEO',
-        data
+        type: 'CONNECT_SERVER',
+        payload: connectServer
     }
 }
 
-const retrievePlaylist = () => {
+const addVideoAction = data => {
+    return {
+        type: 'ADD_VIDEO',
+        payload: () => {
+            addVideo(data);
+            retrievePlaylist();
+        }
+    }
+}
+
+const retrievePlaylistAction = () => {
     return {
         type: 'RETRIEVE_PLAYLIST',
-        payload: fetchPlaylist
+        payload: retrievePlaylist
+    }
+}
+
+const listReloadedAction = () => {
+    return {
+        type: 'LIST_RELOADED'
     }
 }
 
 export {
-    addVideo,
-    retrievePlaylist
+    connectServerAction,
+    addVideoAction,
+    retrievePlaylistAction,
+    listReloadedAction
 };

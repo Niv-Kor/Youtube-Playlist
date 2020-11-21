@@ -1,11 +1,20 @@
 import React, {Component} from 'react';
 import Playlist from './Playlist.js';
+import { connect } from 'react-redux';
+import { addVideoAction, retrievePlaylistAction } from '../store/actions/index';
+
+const mapDispatchToProps = dispatch => ({
+    addVideo: url => {
+        dispatch(addVideoAction(url));
+        dispatch(retrievePlaylistAction());
+    }
+});
 
 class PlaylistSection extends Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
-            inputVal: ""
+            inputVal: ''
         };
 
         this.addVideo = this.addVideo.bind(this);
@@ -16,10 +25,10 @@ class PlaylistSection extends Component {
      * Add a video to the playlist.
      */
     addVideo() {
-        if (this.state.inputVal === "") return;
-        /// TODO add video to server
-
-        this.setState({ inputVal: "" });
+        if (this.state.inputVal === '') return;
+        let url = this.state.inputVal;
+        this.props.addVideo(url);
+        this.setState({ inputVal: '' });
     }
 
     /**
@@ -53,4 +62,4 @@ class PlaylistSection extends Component {
     } 
 }
 
-export default PlaylistSection;
+export default connect(null, mapDispatchToProps)(PlaylistSection);

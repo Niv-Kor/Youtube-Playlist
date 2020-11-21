@@ -9,12 +9,8 @@ import Reducers from './store/reducers/index';
 import Logger from 'redux-logger';
 import Thunk from 'redux-thunk'
 import PromiseMiddleware from 'redux-promise-middleware';
-import { connect } from './Socket';
 
 const store = createStore(Reducers, {}, applyMiddleware(Logger, Thunk, PromiseMiddleware));
-
-//connect to server
-connect();
 
 ReactDOM.render(
     <Provider store={store}>
