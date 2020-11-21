@@ -15,7 +15,7 @@ const CONSTANTS = require('../Constants');
  *                            },
  *                            ...
  *                         ]
- * @returns {Object} The output recordset.
+ * @returns {Object} The output recordsets.
  */
 async function runProcedure(proc, params) {
     let connection = await CONSTANTS.SQL.connect(CONSTANTS.DB_CONFIG);
@@ -28,7 +28,7 @@ async function runProcedure(proc, params) {
     }
     
     let execution = await req.execute(proc);
-    return execution.recordset;
+    return execution.recordsets;
 }
 
 module.exports = {

@@ -1,9 +1,23 @@
 import { connectServer, retrievePlaylist, addVideo, removeVideo, changeOrder } from '../../Socket';
 
-const connectServerAction = () => {
+const connectServerAction = playlistReloadCB => {
     return {
         type: 'CONNECT_SERVER',
-        payload: connectServer
+        payload: async () => connectServer(playlistReloadCB)
+    }
+}
+
+const retrievePlaylistAction = () => {
+    return {
+        type: 'RETRIEVE_PLAYLIST',
+        payload: async () => retrievePlaylist()
+    }
+}
+
+const setPlaylistAction = newPlaylist => {
+    return {
+        type: 'SET_PLAYLIST',
+        payload: newPlaylist
     }
 }
 
@@ -28,24 +42,11 @@ const changeOrderAction = data => {
     }
 }
 
-const retrievePlaylistAction = () => {
-    return {
-        type: 'RETRIEVE_PLAYLIST',
-        payload: retrievePlaylist
-    }
-}
-
-const listReloadedAction = () => {
-    return {
-        type: 'LIST_RELOADED'
-    }
-}
-
 export {
     connectServerAction,
+    retrievePlaylistAction,
+    setPlaylistAction,
     addVideoAction,
     removeVideoAction,
-    changeOrderAction,
-    retrievePlaylistAction,
-    listReloadedAction
+    changeOrderAction
 };

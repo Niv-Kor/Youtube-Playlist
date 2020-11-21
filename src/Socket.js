@@ -5,7 +5,7 @@ const endpoint = 19301;
 const defaultTimeout = 5000;
 var establishSocket, socket;
 
-function connectServer() {
+function connectServer(onPlaylistReload) {
     return new Promise((resolve, reject) => {
         establishSocket = io(`${serverDomain}:${endpoint}`, {
             transports: ['websocket'],
@@ -19,6 +19,11 @@ function connectServer() {
                 transports: ['websocket'],
             });
 
+            socket.on('playlist-hard-reload', newList => {
+                debugger;
+                if (onPlaylistReload) onPlaylistReload(newList);
+            })
+
             resolve();
         });
     
@@ -28,34 +33,6 @@ function connectServer() {
 
         setTimeout(reject, defaultTimeout);
     })
-}
-
-function addVideo(url) {
-    return new Promise((resolve, reject) => {
-        try {
-            socket.emit('add-video', { url });
-            socket.once('add-video', async () => {
-                let newList = await retrievePlaylist();
-                resolve(newList)
-            });
-            setTimeout(reject, defaultTimeout);
-        }
-        catch (ex) { reject(); }
-    });
-}
-
-function removeVideo(url) {
-    return new Promise((resolve, reject) => {
-        try {
-            socket.emit('remove-video', { url });
-            socket.once('remove-video', async () => {
-                let newList = await retrievePlaylist();
-                resolve(newList)
-            });
-            setTimeout(reject, defaultTimeout);
-        }
-        catch (ex) { reject(); }
-    });
 }
 
 function retrievePlaylist() {
@@ -69,14 +46,33 @@ function retrievePlaylist() {
     });
 }
 
+function addVideo(url) {
+    return new Promise((resolve, reject) => {
+        try {
+            socket.emit('add-video', { url });
+            socket.once('add-video', newList => resolve(newList));
+            setTimeout(reject, defaultTimeout);
+        }
+        catch (ex) { reject(); }
+    });
+}
+
+function removeVideo(url) {
+    return new Promise((resolve, reject) => {
+        try {
+            socket.emit('remove-video', { url });
+            socket.once('remove-video', newList => resolve(newList));
+            setTimeout(reject, defaultTimeout);
+        }
+        catch (ex) { reject(); }
+    });
+}
+
 function changeOrder(oldIndex, newIndex) {
     return new Promise((resolve, reject) => {
         try {
             socket.emit('change-order', { oldIndex, newIndex });
-            socket.once('change-order', async () => {
-                let newList = await retrievePlaylist();
-                resolve(newList)
-            });
+            socket.once('change-order', newList => resolve(newList));
             setTimeout(reject, defaultTimeout);
         }
         catch (ex) { reject(ex); }

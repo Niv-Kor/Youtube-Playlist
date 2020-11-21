@@ -2,8 +2,12 @@ const playlist = (state = [], action) => {
     switch (action.type) {
         case 'RETRIEVE_PLAYLIST_FULFILLED':
             return action.payload;
+
+        case 'SET_PLAYLIST':
+            return action.payload;
         
         case 'ADD_VIDEO_FULFILLED':
+            debugger;
             return action.payload
 
         case 'REMOVE_VIDEO_FULFILLED':

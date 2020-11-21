@@ -5,7 +5,7 @@ import { changeOrderAction } from '../store/actions/index';
 import { connect } from 'react-redux';
 
 const mapDispatchToProps = dispatch => ({
-    changeOrder: (oldIndex, newIndex) => dispatch(changeOrderAction(oldIndex, newIndex))
+    changeOrder: (oldIndex, newIndex) => dispatch(changeOrderAction({ oldIndex, newIndex }))
 });
 
 class Playlist extends Component {
@@ -17,6 +17,7 @@ class Playlist extends Component {
         }
 
         this.handleDragEnd = this.handleDragEnd.bind(this);
+        this.componentDidUpdate = this.componentDidUpdate.bind(this);
     };
 
     componentDidUpdate(prevProps) {
@@ -32,7 +33,7 @@ class Playlist extends Component {
     getItemStyle(isDragged, draggableStyle) {
         if (isDragged) return {
             userSelect: 'none',
-            backgroundColor: '#ff133e',
+            backgroundColor: '#ff8097',
             transition: 'background-color .2s linear !important',
             ...draggableStyle
         }
@@ -103,8 +104,8 @@ class Playlist extends Component {
      * @returns {String} The new trimmed title.
      */
     trimTitle(str, len) {
-        if (str.length > len) return str.substring(0, len) + '...';
-        else return str;
+        if (!str || str.length <= len) return str;
+        else if (str.length > len) return str.substring(0, len) + '...';
     }
 
     /**
@@ -133,10 +134,12 @@ class Playlist extends Component {
         
         let source = event.source.index;
         let dest = event.destination.index;
-        const items = this.reorderList(this.state.items, source, dest);
-        this.props.changeOrder(source, dest)
 
-        this.setState({ items: items });
+        if (source !== dest) {
+            const items = this.reorderList(this.state.items, source, dest);
+            this.props.changeOrder(source, dest)
+            this.setState({ items: items });
+        }
     }
 
     render() {

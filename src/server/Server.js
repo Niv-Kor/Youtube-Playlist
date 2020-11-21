@@ -5,6 +5,7 @@ const ACTIONS = {
     playlist: require('./actions/PlaylistActions')
 }
 
+const clients = [];
 CONSTANTS.FRONT_IO.setMaxListeners(0);
 
 //handle client's connection
@@ -13,6 +14,7 @@ CONSTANTS.FRONT_IO.on('connection', async socket => {
     let port = await CONSTANTS.PORT_HANDLER();
     let personalServer = CONSTANTS.HTTP.createServer();
     let personalIO = CONSTANTS.FRONT_IO.listen(personalServer);
+    clients.push(personalIO);
     personalServer.listen(port, err => {
         if (err) LOGGER.error(`port ${port} could not be connected`, err);
         else {
@@ -32,18 +34,24 @@ CONSTANTS.FRONT_IO.on('connection', async socket => {
         });
 
         socket.on('add-video', async data => {
-            let res = await ACTIONS.playlist.addVideo(data.url);
-            socket.emit('add-video', res);
+            let newList = await ACTIONS.playlist.addVideo(data.url);
+            socket.emit('add-video', newList);
         });
 
         socket.on('remove-video', async data => {
-            let res = await ACTIONS.playlist.removeVideo(data.url);
-            socket.emit('remove-video', res);
+            let newList = await ACTIONS.playlist.removeVideo(data.url);
+            socket.emit('remove-video', newList);
+
+            //emit the new list to all other clients
+            if (newList)
+                for (let otherClient of clients)
+                    if (otherClient !== socket)
+                        otherClient.emit('playlist-hard-reload', newList);
         });
 
         socket.on('change-order', async data => {
-            let res = await ACTIONS.playlist.removeVideo(data.oldIndex, data.newIndex);
-            socket.emit('change-order', res);
+            let newList = await ACTIONS.playlist.changeOrder(data.oldIndex, data.newIndex);
+            socket.emit('change-order', newList);
         });
 
         personalServer.removeListener('exit', () => {

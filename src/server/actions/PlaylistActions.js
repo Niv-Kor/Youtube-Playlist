@@ -22,10 +22,10 @@ function getPlaylist() {
         GENERAL_ACTIONS.runProcedure('GetPlaylist')
         .then(res => {
             //convert duration back to a string format [mm:ss]
-            for (let item of res)
+            for (let item of res[0])
                 item.duration = secondsToString(item.duration);
 
-            resolve(res);
+            resolve(res[0]);
         }).catch(err => {
             LOGGER.error('Could not retrieve the playlist', err);
             resolve(null);
@@ -55,7 +55,7 @@ function secondsToString(seconds) {
  * Remove a video from the playlist.
  * 
  * @param {String} url - The video's source URL
- * @returns {Boolean} True if the video has been deleted successfully.
+ * @returns {Object} The new modified playlist.
  */
 function addVideo(url) {
     return new Promise(resolve => {
@@ -106,8 +106,8 @@ function addVideo(url) {
             ];
         
             GENERAL_ACTIONS.runProcedure('AddVideo', params)
-                .then(res => resolve(!!res))
-                .catch(() => resolve(false));
+                .then(newPlaylist => resolve(newPlaylist[0]))
+                .catch(() => resolve(null));
         });
     });
 }
@@ -116,18 +116,17 @@ function addVideo(url) {
  * Remove a video from the playlist.
  * 
  * @param {String} url - The video's source URL
- * @param {String} title - The video's title
- * @returns {Boolean} True if the video has been deleted successfully.
+ * @returns {Object} The new modified playlist.
  */
-function removeVideo(url, title) {
+function removeVideo(url) {
     let params = [
         { name: 'src', type: CONSTANTS.SQL.VarChar(512), value: url, options: {} }
     ];
 
     return new Promise(resolve => {
         GENERAL_ACTIONS.runProcedure('RemoveVideo', params)
-        .then(res => resolve(!!res))
-        .catch(() => resolve(false));
+            .then(newPlaylist => resolve(newPlaylist[1]))
+            .catch(() => resolve(null));
     });
 }
 
@@ -136,7 +135,7 @@ function removeVideo(url, title) {
  * 
  * @param {Number} oldIndex - The old index of a video in the playlist
  * @param {Number} newIndex - The new index of that same video
- * @returns {Boolean} True if operation is successful.
+ * @returns {Object} The new modified playlist.
  */
 function changeOrder(oldIndex, newIndex) {
     let params = [
@@ -146,8 +145,8 @@ function changeOrder(oldIndex, newIndex) {
 
     return new Promise(resolve => {
         GENERAL_ACTIONS.runProcedure('ChangeOrder', params)
-        .then(res => resolve(!!res))
-        .catch(() => resolve(false));
+            .then(newPlaylist => resolve(newPlaylist[0]))
+            .catch(() => resolve(null));
     });
 }
 

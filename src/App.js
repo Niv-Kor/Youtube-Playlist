@@ -2,7 +2,7 @@ import './App.css';
 import React from 'react';
 import Wallpaper from './wallpaper.jpg';
 import { useSelector, useDispatch } from 'react-redux';
-import { connectServerAction, retrievePlaylistAction } from './store/actions/index';
+import { connectServerAction, retrievePlaylistAction, setPlaylistAction } from './store/actions/index';
 import PlaylistSection from './components/PlaylistSection.js';
 import PlayerSection from './components/PlayerSection.js';
 
@@ -12,9 +12,14 @@ function App() {
   const playlist = useSelector(state => state.Playlist);
   const dispatch = useDispatch();
 
+  var onPlaylistReload = newList => {
+    dispatch(setPlaylistAction(newList));
+  }
+
   //prevent DB connection from occuring with each component update
   if (!connected) {
-    dispatch(connectServerAction()).then(() => dispatch(retrievePlaylistAction()));
+    dispatch(connectServerAction(onPlaylistReload))
+      .then(() => dispatch(retrievePlaylistAction()));
     connected = true;
   }
 
@@ -23,6 +28,12 @@ function App() {
         <img className="wallpaper" src={Wallpaper} alt=''/>
         <PlayerSection playlist={playlist} />
         <PlaylistSection playlist={playlist} />
+        <p
+          className="credit"
+          align="center"
+        >
+          Made by Niv Kor
+        </p>
       </div>
   )
 }

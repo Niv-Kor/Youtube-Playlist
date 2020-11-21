@@ -1,9 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { listReloadedAction, removeVideoAction } from '../store/actions/index';
+import { removeVideoAction } from '../store/actions/index';
 
 const mapDispatchToProps = dispatch => ({
-    listReloaded: url => dispatch(listReloadedAction(url)),
     removeVideo: url => dispatch(removeVideoAction(url))
 });
 
@@ -20,6 +19,7 @@ class Player extends React.Component {
         }
 
         this.init();
+        this.componentDidUpdate = this.componentDidUpdate.bind(this);
         window['onYouTubeIframeAPIReady'] = async () => {
             let firstUrl = this.getFirstVideoUrl();
             this.setState({ empty: firstUrl === '' });
@@ -112,7 +112,6 @@ class Player extends React.Component {
      * Load the first video in the playlist.
      */
     loadVideo() {
-        debugger;
         if (!this.state.loaded || !this.props.playlist || !this.props.playlist.length) return;
         else this.setState({ empty: false });
 
