@@ -44,6 +44,20 @@ function addVideo(url) {
     });
 }
 
+function removeVideo(url) {
+    return new Promise((resolve, reject) => {
+        try {
+            socket.emit('remove-video', { url });
+            socket.once('remove-video', async () => {
+                let newList = await retrievePlaylist();
+                resolve(newList)
+            });
+            setTimeout(reject, defaultTimeout);
+        }
+        catch (ex) { reject(); }
+    });
+}
+
 function retrievePlaylist() {
     return new Promise((resolve, reject) => {
         try {
@@ -55,8 +69,24 @@ function retrievePlaylist() {
     });
 }
 
+function changeOrder(oldIndex, newIndex) {
+    return new Promise((resolve, reject) => {
+        try {
+            socket.emit('change-order', { oldIndex, newIndex });
+            socket.once('change-order', async () => {
+                let newList = await retrievePlaylist();
+                resolve(newList)
+            });
+            setTimeout(reject, defaultTimeout);
+        }
+        catch (ex) { reject(ex); }
+    });
+}
+
 export {
     connectServer,
     addVideo,
-    retrievePlaylist
+    removeVideo,
+    retrievePlaylist,
+    changeOrder
 };

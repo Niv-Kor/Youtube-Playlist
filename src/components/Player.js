@@ -1,9 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { listReloadedAction } from '../store/actions/index';
+import { listReloadedAction, removeVideoAction } from '../store/actions/index';
 
 const mapDispatchToProps = dispatch => ({
-    listReloaded: url => dispatch(listReloadedAction(url))
+    listReloaded: url => dispatch(listReloadedAction(url)),
+    removeVideo: url => dispatch(removeVideoAction(url))
 });
 
 class Player extends React.Component {
@@ -13,14 +14,15 @@ class Player extends React.Component {
             player: null,
             done: false,
             YT: null,
-            videoId: '',
             loaded: false,
-            firstLoad: true
+            firstLoad: true,
+            empty: true
         }
 
         this.init();
         window['onYouTubeIframeAPIReady'] = async () => {
             let firstUrl = this.getFirstVideoUrl();
+            this.setState({ empty: firstUrl === '' });
             this.loadVideo = this.loadVideo.bind(this);
 
             this.state.YT = window['YT'];
@@ -30,9 +32,8 @@ class Player extends React.Component {
                     'onStateChange': this.onPlayerStateChange.bind(this),
                     'onError': err => console.error('Player error:', err),
                     'onReady': e => {
-                        this.setState({ videoId: firstUrl });
+                        this.setState({ empty: this.getFirstVideoUrl() === '' });
                         this.loadVideo();
-                        e.target.playVideo();
                         this.setState({ loaded: true });
                     }
                 }
@@ -48,10 +49,13 @@ class Player extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (this.state.loaded && (prevProps.playlist !== this.props.playlist || this.state.firstLoad)) {
+        let changed = prevProps.playlist !== this.props.playlist;
+
+        if (!this.state.empty && this.state.loaded && (changed || this.state.firstLoad)) {
             this.setState({ videoId: this.getFirstVideoUrl() });
             this.setState({ firstLoad: false });
             this.loadVideo();
+            this.state.player.playVideo();
         }
     }
 
@@ -73,7 +77,8 @@ class Player extends React.Component {
                 break;
 
             case this.state.YT.PlayerState.ENDED:
-                console.log('ended');
+                this.setState({ empty: this.props.playlist.length === 1 });
+                this.props.removeVideo(this.props.playlist[0].url);
                 break;
 
             default: return;
@@ -107,7 +112,9 @@ class Player extends React.Component {
      * Load the first video in the playlist.
      */
     loadVideo() {
+        debugger;
         if (!this.state.loaded || !this.props.playlist || !this.props.playlist.length) return;
+        else this.setState({ empty: false });
 
         this.state.player.loadVideoById({
             'videoId': this.props.playlist[0].url,

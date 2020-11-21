@@ -1,22 +1,16 @@
-const playlist = (state = { playlist: [], reload: false }, action) => {
+const playlist = (state = [], action) => {
     switch (action.type) {
         case 'RETRIEVE_PLAYLIST_FULFILLED':
-            return {
-                playlist: action.payload,
-                reload: true
-            }
+            return action.payload;
         
         case 'ADD_VIDEO_FULFILLED':
-            return {
-                playlist: action.payload,
-                reload: true
-            }
+            return action.payload
 
-        case 'LIST_RELOADED':
-            return {
-                ...state.playlist,
-                reload: false
-            }
+        case 'REMOVE_VIDEO_FULFILLED':
+            return action.payload;
+
+        case 'CHANGE_ORDER_FULFILLED':
+            return action.payload;
         
         default: return state;
     }

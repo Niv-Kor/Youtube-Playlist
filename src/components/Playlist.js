@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import VideoTile from './VideoTile';
-import { listReloadedAction } from '../store/actions/index';
+import { changeOrderAction } from '../store/actions/index';
 import { connect } from 'react-redux';
 
 const mapDispatchToProps = dispatch => ({
-    listReloaded: url => dispatch(listReloadedAction(url))
+    changeOrder: (oldIndex, newIndex) => dispatch(changeOrderAction(oldIndex, newIndex))
 });
 
 class Playlist extends Component {
@@ -85,13 +85,26 @@ class Playlist extends Component {
                     >
                         <VideoTile
                             src={item.src}
-                            title={item.title}
+                            title={this.trimTitle(item.title, 60)}
                             duration={item.duration}
                         />
                     </li>
                 )}
             </Draggable>
         ));
+    }
+
+    /**
+     * Trim the title to a fixed amount of maximum characters,
+     * and append '...' as its suffix.
+     * 
+     * @param {String} str - The title to trim
+     * @param {Number} len - Amount of maximum characters
+     * @returns {String} The new trimmed title.
+     */
+    trimTitle(str, len) {
+        if (str.length > len) return str.substring(0, len) + '...';
+        else return str;
     }
 
     /**
@@ -118,11 +131,10 @@ class Playlist extends Component {
     handleDragEnd(event) {
         if (!event.destination) return;
         
-        const items = this.reorderList(
-            this.state.items,
-            event.source.index,
-            event.destination.index
-        );
+        let source = event.source.index;
+        let dest = event.destination.index;
+        const items = this.reorderList(this.state.items, source, dest);
+        this.props.changeOrder(source, dest)
 
         this.setState({ items: items });
     }

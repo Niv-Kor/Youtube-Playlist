@@ -4,12 +4,6 @@ const LOGGER = require('../Logger');
 const GENERAL_ACTIONS = require('./GeneralActions');
 const apiKey = 'AIzaSyCu8orLsG3kqisODaqocgXXc7lDGkVV0SU';
 
-module.exports = {
-    getPlaylist,
-    addVideo,
-    removeVideo
-};
-
 /**
  * Get the entire playlist from the DB.
  * 
@@ -47,10 +41,14 @@ function getPlaylist() {
  */
 function secondsToString(seconds) {
     let mins = parseInt(seconds / 60);
-    let secs = seconds - mins * 60;
+    let hours = parseInt(mins / 60);
+    let secs = seconds - mins * 60 - hours * 360;
+    let hoursPrefix = (hours < 10) ? '0' : '';
     let minsPrefix = (mins < 10) ? '0' : '';
     let secsPrefix = (secs < 10) ? '0' : '';
-    return `${minsPrefix}${mins}:${secsPrefix}${secs}`;
+    let hoursSection = (hours !== 0) ? hoursPrefix + hours + ':' : '';
+
+    return `${hoursSection}${minsPrefix}${mins}:${secsPrefix}${secs}`;
 }
 
 /**
@@ -129,6 +127,33 @@ function removeVideo(url, title) {
     return new Promise(resolve => {
         GENERAL_ACTIONS.runProcedure('RemoveVideo', params)
         .then(res => resolve(!!res))
-        .catch(err => resolve(false));
+        .catch(() => resolve(false));
     });
 }
+
+/**
+ * Change the order of two videos in the playlist.
+ * 
+ * @param {Number} oldIndex - The old index of a video in the playlist
+ * @param {Number} newIndex - The new index of that same video
+ * @returns {Boolean} True if operation is successful.
+ */
+function changeOrder(oldIndex, newIndex) {
+    let params = [
+        { name: 'old_index', type: CONSTANTS.SQL.Int, value: oldIndex, options: {} },
+        { name: 'new_index', type: CONSTANTS.SQL.Int, value: newIndex, options: {} },
+    ];
+
+    return new Promise(resolve => {
+        GENERAL_ACTIONS.runProcedure('ChangeOrder', params)
+        .then(res => resolve(!!res))
+        .catch(() => resolve(false));
+    });
+}
+
+module.exports = {
+    getPlaylist,
+    addVideo,
+    removeVideo,
+    changeOrder
+};

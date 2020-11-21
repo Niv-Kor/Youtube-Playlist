@@ -26,9 +26,20 @@ class PlaylistSection extends Component {
      */
     addVideo() {
         if (this.state.inputVal === '') return;
-        let url = this.state.inputVal;
+        let url = this.trimURLPrefix(this.state.inputVal);
         this.props.addVideo(url);
         this.setState({ inputVal: '' });
+    }
+
+    /**
+     * @param {String} url - The URL of a youtube video
+     * @returns {String} Only the video ID, without the youtube domain prefix.
+     */
+    trimURLPrefix(url) {
+        let trimSpot = url.lastIndexOf('/');
+
+        if (trimSpot === -1) return url;
+        else return url.substring(trimSpot + 1, url.length)
     }
 
     /**
@@ -49,6 +60,10 @@ class PlaylistSection extends Component {
                     placeholder="Video URL"
                     value={this.state.inputVal}
                     onChange={this.setInputValue}
+                    onKeyDown={e => {
+                        if (e.key === 'Enter')
+                            this.addVideo();
+                    }}
                 />
                 <button
                     className="add-button"

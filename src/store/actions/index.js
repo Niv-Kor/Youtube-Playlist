@@ -1,4 +1,4 @@
-import { connectServer, retrievePlaylist, addVideo } from '../../Socket';
+import { connectServer, retrievePlaylist, addVideo, removeVideo, changeOrder } from '../../Socket';
 
 const connectServerAction = () => {
     return {
@@ -11,6 +11,20 @@ const addVideoAction = data => {
     return {
         type: 'ADD_VIDEO',
         payload: async () => addVideo(data)
+    }
+}
+
+const removeVideoAction = data => {
+    return {
+        type: 'REMOVE_VIDEO',
+        payload: async () => removeVideo(data)
+    }
+}
+
+const changeOrderAction = data => {
+    return {
+        type: 'CHANGE_ORDER',
+        payload: async () => changeOrder(data.oldIndex, data.newIndex)
     }
 }
 
@@ -30,6 +44,8 @@ const listReloadedAction = () => {
 export {
     connectServerAction,
     addVideoAction,
+    removeVideoAction,
+    changeOrderAction,
     retrievePlaylistAction,
     listReloadedAction
 };

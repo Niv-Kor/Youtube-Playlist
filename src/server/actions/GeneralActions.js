@@ -1,9 +1,5 @@
 const CONSTANTS = require('../Constants');
 
-module.exports = {
-    runProcedure
-};
-
 /**
  * Run an sql procedure.
  * 
@@ -34,3 +30,7 @@ async function runProcedure(proc, params) {
     let execution = await req.execute(proc);
     return execution.recordset;
 }
+
+module.exports = {
+    runProcedure
+};

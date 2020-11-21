@@ -37,8 +37,13 @@ CONSTANTS.FRONT_IO.on('connection', async socket => {
         });
 
         socket.on('remove-video', async data => {
-            let res = await ACTIONS.playlist.removeVideo(data);
+            let res = await ACTIONS.playlist.removeVideo(data.url);
             socket.emit('remove-video', res);
+        });
+
+        socket.on('change-order', async data => {
+            let res = await ACTIONS.playlist.removeVideo(data.oldIndex, data.newIndex);
+            socket.emit('change-order', res);
         });
 
         personalServer.removeListener('exit', () => {
