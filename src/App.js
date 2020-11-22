@@ -1,6 +1,6 @@
 import './App.css';
 import React from 'react';
-import Wallpaper from './wallpaper.jpg';
+import Wallpaper from './res/wallpaper.jpg';
 import { useSelector, useDispatch } from 'react-redux';
 import { connectServerAction, retrievePlaylistAction, setPlaylistAction } from './store/actions/index';
 import PlaylistSection from './components/PlaylistSection.js';

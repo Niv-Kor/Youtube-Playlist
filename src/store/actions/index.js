@@ -1,4 +1,4 @@
-import { connectServer, retrievePlaylist, addVideo, removeVideo, changeOrder } from '../../Socket';
+import { connectServer, retrievePlaylist, addVideo, removeVideo, changeOrder } from '../../server/Socket';
 
 const connectServerAction = playlistReloadCB => {
     return {
@@ -28,10 +28,10 @@ const addVideoAction = data => {
     }
 }
 
-const removeVideoAction = data => {
+const removeVideoAction = url => {
     return {
         type: 'REMOVE_VIDEO',
-        payload: async () => removeVideo(data)
+        payload: async () => removeVideo(url)
     }
 }
 
@@ -42,11 +42,19 @@ const changeOrderAction = data => {
     }
 }
 
+const focusVideoInputAction = flag => {
+    return {
+        type: 'FOCUS_VIDEO_INPUT',
+        flag
+    }
+}
+
 export {
     connectServerAction,
     retrievePlaylistAction,
     setPlaylistAction,
     addVideoAction,
     removeVideoAction,
-    changeOrderAction
+    changeOrderAction,
+    focusVideoInputAction
 };

@@ -1,4 +1,3 @@
-const { AXIOS } = require('../Constants');
 const CONSTANTS = require('../Constants');
 const LOGGER = require('../Logger');
 const GENERAL_ACTIONS = require('./GeneralActions');
@@ -20,17 +19,19 @@ const apiKey = 'AIzaSyCu8orLsG3kqisODaqocgXXc7lDGkVV0SU';
 function getPlaylist() {
     return new Promise(resolve => {
         GENERAL_ACTIONS.runProcedure('GetPlaylist')
-        .then(res => {
-            //convert duration back to a string format [mm:ss]
-            for (let item of res[0])
-                item.duration = secondsToString(item.duration);
-
-            resolve(res[0]);
-        }).catch(err => {
-            LOGGER.error('Could not retrieve the playlist', err);
-            resolve(null);
-        });
+            .then(res => resolve(modifyPlaylistDurations(res[0])))
+            .catch(err => {
+                LOGGER.error('Could not retrieve the playlist', err);
+                resolve(null);
+            });
     });
+}
+
+function modifyPlaylistDurations(playlist) {
+    for (let item of playlist)
+        item.duration = secondsToString(item.duration);
+
+    return playlist
 }
 
 /**
@@ -64,7 +65,7 @@ function addVideo(url) {
         let fields = 'items(snippet(title),contentDetails(duration))';
         let part = 'snippet,contentDetails';
 
-        AXIOS({
+        CONSTANTS.AXIOS({
             method: 'get',
             url: `https://www.googleapis.com/youtube/v3/videos?id=${url}&key=${apiKey}&fields=${fields}&part=${part}`
         }).then(res => {
@@ -106,7 +107,7 @@ function addVideo(url) {
             ];
         
             GENERAL_ACTIONS.runProcedure('AddVideo', params)
-                .then(newPlaylist => resolve(newPlaylist[0]))
+                .then(newPlaylist => resolve(modifyPlaylistDurations(newPlaylist[0])))
                 .catch(() => resolve(null));
         });
     });
@@ -125,7 +126,7 @@ function removeVideo(url) {
 
     return new Promise(resolve => {
         GENERAL_ACTIONS.runProcedure('RemoveVideo', params)
-            .then(newPlaylist => resolve(newPlaylist[1]))
+            .then(newPlaylist => resolve(modifyPlaylistDurations(newPlaylist[1])))
             .catch(() => resolve(null));
     });
 }
@@ -145,7 +146,7 @@ function changeOrder(oldIndex, newIndex) {
 
     return new Promise(resolve => {
         GENERAL_ACTIONS.runProcedure('ChangeOrder', params)
-            .then(newPlaylist => resolve(newPlaylist[0]))
+            .then(newPlaylist => resolve(modifyPlaylistDurations(newPlaylist[0])))
             .catch(() => resolve(null));
     });
 }

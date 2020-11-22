@@ -1,13 +1,17 @@
 import React, {Component} from 'react';
 import Playlist from './Playlist.js';
 import { connect } from 'react-redux';
-import { addVideoAction } from '../store/actions/index';
+import { addVideoAction, focusVideoInputAction } from '../store/actions/index';
+
+const mapStateToProps = state => {
+    return {
+        inputFocus: state.InputFocus
+    }
+};
 
 const mapDispatchToProps = dispatch => ({
-    addVideo: url => {
-        dispatch(addVideoAction(url));
-        //dispatch(retrievePlaylistAction());
-    }
+    addVideo: url => dispatch(addVideoAction(url)),
+    loseInputFocus: () => dispatch(focusVideoInputAction(false))
 });
 
 class PlaylistSection extends Component {
@@ -19,6 +23,11 @@ class PlaylistSection extends Component {
 
         this.addVideo = this.addVideo.bind(this);
         this.setInputValue = this.handleInput.bind(this);
+    }
+
+    componentDidUpdate(prevProps) {
+        if (this.props.inputFocus && prevProps.inputFocus !== this.props.inputFocus)
+            this.nameInput.focus();
     }
 
     /**
@@ -57,13 +66,15 @@ class PlaylistSection extends Component {
                 <input
                     className="link-input"
                     type="text"
-                    placeholder="Video URL"
+                    placeholder=" Video URL"
                     value={this.state.inputVal}
                     onChange={this.setInputValue}
                     onKeyDown={e => {
                         if (e.key === 'Enter')
                             this.addVideo();
                     }}
+                    ref={input => this.nameInput = input} 
+                    onBlur={() => this.props.loseInputFocus()}
                 />
                 <button
                     className="add-button"
@@ -77,4 +88,4 @@ class PlaylistSection extends Component {
     } 
 }
 
-export default connect(null, mapDispatchToProps)(PlaylistSection);
+export default connect(mapStateToProps, mapDispatchToProps)(PlaylistSection);

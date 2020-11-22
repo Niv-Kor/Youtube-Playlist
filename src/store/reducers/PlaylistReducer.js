@@ -7,7 +7,6 @@ const playlist = (state = [], action) => {
             return action.payload;
         
         case 'ADD_VIDEO_FULFILLED':
-            debugger;
             return action.payload
 
         case 'REMOVE_VIDEO_FULFILLED':

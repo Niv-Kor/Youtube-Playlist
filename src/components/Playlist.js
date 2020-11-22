@@ -46,16 +46,6 @@ class Playlist extends Component {
     };
     
     /**
-     * @param {Boolean} isDraggingOver - True if an item is being dragged over the list
-     * @returns {Object} A css style object.
-     */
-    getListStyle(isDraggingOver) {
-        return {
-            background: isDraggingOver ? "lightblue" : "lightgrey",
-        }
-    }
-
-    /**
      * Create rectangular video tiles from a raw video data.
      * 
      * @param {Array} data - [
@@ -85,7 +75,7 @@ class Playlist extends Component {
                         style={this.getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
                     >
                         <VideoTile
-                            src={item.src}
+                            src={item.url}
                             title={this.trimTitle(item.title, 60)}
                             duration={item.duration}
                         />
@@ -147,17 +137,16 @@ class Playlist extends Component {
             <div className="playlist-window">
                 <DragDropContext onDragEnd={this.handleDragEnd}>
                     <Droppable droppableId="droppable">
-                    {(provided, snapshot) => (
-                        <ul
-                            className="playlist-list"
-                            {...provided.droppableProps}
-                            ref={provided.innerRef}
-                            style={this.getListStyle(snapshot.isDraggingOver)}
-                        >
-                        {this.CreateVideoTiles(this.state.items)}
-                        {provided.placeholder}
-                        </ul>
-                    )}
+                        {provided => (
+                            <ul
+                                className="playlist-list"
+                                {...provided.droppableProps}
+                                ref={provided.innerRef}
+                            >
+                                {this.CreateVideoTiles(this.state.items)}
+                                {provided.placeholder}
+                            </ul>
+                        )}
                     </Droppable>
                 </DragDropContext>
             </div>

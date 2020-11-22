@@ -3,6 +3,8 @@ import io from 'socket.io-client';
 const serverDomain = 'http://localhost';
 const endpoint = 19301;
 const defaultTimeout = 5000;
+const playlistReloadCooldown = 1500;
+var reloadCooldown = false;
 var establishSocket, socket;
 
 function connectServer(onPlaylistReload) {
@@ -19,9 +21,15 @@ function connectServer(onPlaylistReload) {
                 transports: ['websocket'],
             });
 
+            //server tells this client to reload his playlist
             socket.on('playlist-hard-reload', newList => {
-                debugger;
-                if (onPlaylistReload) onPlaylistReload(newList);
+                if (onPlaylistReload && !reloadCooldown) {
+                    onPlaylistReload(newList);
+                    reloadCooldown = true;
+
+                    //set cooldown to prevent recursive calls
+                    setTimeout(() => reloadCooldown = false, playlistReloadCooldown)
+                }
             })
 
             resolve();

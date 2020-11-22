@@ -32,6 +32,7 @@ class Player extends React.Component {
                     'onStateChange': this.onPlayerStateChange.bind(this),
                     'onError': err => console.error('Player error:', err),
                     'onReady': e => {
+                        this.state.player.stopVideo();
                         this.setState({ empty: this.getFirstVideoUrl() === '' });
                         this.loadVideo();
                         this.setState({ loaded: true });
@@ -49,9 +50,13 @@ class Player extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        let changed = prevProps.playlist !== this.props.playlist;
+        if (!this.state.player || !this.state.loaded) return;
 
-        if (!this.state.empty && this.state.loaded && (changed || this.state.firstLoad)) {
+        let changed = prevProps.playlist !== this.props.playlist;
+        let exists = this.props.playlist.length > 0;
+
+        if (!exists) this.state.player.stopVideo();
+        else if (!this.state.empty && this.state.loaded && (changed || this.state.firstLoad)) {
             this.setState({ videoId: this.getFirstVideoUrl() });
             this.setState({ firstLoad: false });
             this.loadVideo();
@@ -59,24 +64,21 @@ class Player extends React.Component {
         }
     }
 
+    /**
+     * Invoke different actions according to the user's interaction with the player.
+     * 
+     * @param {Object} event - Automatic event parameter
+     */
     onPlayerStateChange(event) {
         switch (event.data) {
             case this.state.YT.PlayerState.PLAYING:
-                if (this.getPassedTime() === 0) {
-                    console.log('started ' + this.getPassedTime());
-                }
-                else {
-                    console.log('playing ' + this.getPassedTime())
-                };
                 break;
 
             case this.state.YT.PlayerState.PAUSED:
-                if (this.state.player.getDuration() - this.state.player.getCurrentTime() !== 0) {
-                    console.log('paused @' + this.getPassedTime());
-                };
                 break;
 
             case this.state.YT.PlayerState.ENDED:
+                this.state.player.stopVideo();
                 this.setState({ empty: this.props.playlist.length === 1 });
                 this.props.removeVideo(this.props.playlist[0].url);
                 break;
@@ -93,13 +95,6 @@ class Player extends React.Component {
     };
 
     /**
-     * Stop the video player.
-     */
-    stopVideo() {
-        this.state.player.stopVideo();
-    }
-
-    /**
      * @returns {String} The URL of the first video in the playlist.
      */
     getFirstVideoUrl() {
@@ -114,7 +109,7 @@ class Player extends React.Component {
     loadVideo() {
         if (!this.state.loaded || !this.props.playlist || !this.props.playlist.length) return;
         else this.setState({ empty: false });
-
+        
         this.state.player.loadVideoById({
             'videoId': this.props.playlist[0].url,
             'startSeconds': 0
